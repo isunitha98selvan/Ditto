@@ -6,7 +6,7 @@ import requests
 app = Flask(__name__) 
 cron = Scheduler(daemon=True)
 
-@cron.interval_schedule(hours=0.1)
+@cron.interval_schedule(hours=0.001)
 @app.route('/') 
 def data_generator():
     humidity = random.randrange(20,80)
@@ -19,22 +19,22 @@ def data_generator():
     dictToSend = {
      "environment": {
         "properties": {
-            "humidity": 10,
-            "temperature": 20            }
+            "humidity": humidity,
+            "temperature": temp            }
     },
      "fuel": {
        "properties": {
          "type": "Leaded",
          "capacity": 70 ,
-         "level": 50 ,
+         "level": level ,
          "rating": "A"
        }
      },
      "engine": {
        "properties": {
-         "temperature": 5,
-         "batterycapacity": 5 ,
-         "currentlevel": 5      
+         "temperature": engine_temp,
+         "batterycapacity": battery_capacity ,
+         "currentlevel": current_level      
        }
      },
      "tyres":  {
@@ -54,10 +54,11 @@ def data_generator():
     }
     }
 
-    res = requests.put('http://localhost:8080/api/2/things/org.eclipse.ditto:vehicle/features', json=dictToSend)
+    res = requests.put('http://localhost:8080/api/2/things/org.eclipse.ditto:vehicle/features', json=dictToSend,  auth=('ditto', 'ditto'))
 
     # dictFromServer = res.json()
     print('response from server:',res.text)
+    print("Values generated: ", dictToSend)
     # print(dictFromServer)
     return res.text
     
